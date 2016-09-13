@@ -10,7 +10,7 @@ npm install node-cleanup --save
 
 ## Usage
 
-nodeCleanup() installs a function that performs cleanup activities just before the node process exits. The cleanup function runs when the process exits normally, when the user presses *ctrl*-C, and when an exception is uncaught. The caller may specify the termination messages to use.
+nodeCleanup() installs a function that performs cleanup activities just before the node process exits. The cleanup function runs when the process exits normally, when the user presses *ctrl-C*, and when an exception is uncaught. The caller may specify the termination messages to use.
 
 ```js
 var nodeCleanup = require('node-cleanup');
@@ -20,9 +20,9 @@ nodeCleanup(function () {
 });
 ```
 
-nodeCleanup() also ensures that ctrl-C is handled gracefully in contexts that already have exit handlers installed, such as Node Express. To receive just this benefit, the caller need not provide a cleanup handler.
+nodeCleanup() also ensures that *ctrl-C* is handled gracefully in contexts that already have exit handlers installed, such as Node Express. To receive just this benefit, the caller need not provide a cleanup handler.
 
-By default, `nodeCleanup()` writes `[ctrl-C]` to `stderr` when interrupted and `Uncaught exception...` to `stderr` when an uncaught exception occurs. You may override either or both of these values in a second parameter:
+By default, `nodeCleanup()` writes "[ctrl-C]" to `stderr` when interrupted and "Uncaught exception..." to `stderr` when an uncaught exception occurs. You may override either or both of these values in a second parameter:
 
 ```js
 var nodeCleanup = require('node-cleanup');
@@ -34,9 +34,9 @@ nodeCleanup(function () {
 
 ## Reference
 
-`nodeCleanup(cleanupHandler, messages)`
+`function nodeCleanup(cleanupHandler, messages)`
 
-Install a cleanup handler that reliably runs when node exits. Both parameters are optional. Calling `nodeCleanup()` without a `cleanupHandler` still provides the benefit of ensuring that other installed exit handlers run on *ctrl*-C.
+Install a cleanup handler that reliably runs when node exits. Both parameters are optional. Calling `nodeCleanup()` without a `cleanupHandler` still provides the benefit of ensuring that other installed exit handlers run on *ctrl-C*.
 
 | Param | Description |
 | --- | --- |

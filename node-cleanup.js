@@ -4,23 +4,7 @@
  * exits normally, when the user presses ctrl-C, and when an exception is
  * uncaught. The caller may specify the termination messages to use.
  *
- * nodeCleanup() also ensures that ctrl-C is handled gracefully in contexts
- * that already have exit handlers installed, such as Node Express. To
- * receive just this benefit, the caller need not provide a cleanup handler.
- *
- * This code was borrowed and modified from CanyonCasa's answer to a
- * stackoverflow question. I found the code necessary for all my node
- * projects. See the stackoverflow answer for example usage:
- * http://stackoverflow.com/a/21947851/650894
- *
- * @param cleanupHandler A function that performs the final cleanup of
- *      resources before the node process exits. The function may write to
- *      stderr and stdout. It takes no parameters and can't abort the exit.
- *      The handler is optional, defaulting to a function that does nothing.
- * @param messages An optional object mapping any of the keys `ctrl_C` and
- *      `uncaughtException` to the message strings that output to stderr.
- *      Set a message to the empty string '' to prevent output to stderr
- *      for its case. Default messages are provided omitted messages.
+ * See https://github.com/jtlapp/node-cleanup for more information.
  */
 
 module.exports = function nodeCleanup(cleanupHandler, messages) {
