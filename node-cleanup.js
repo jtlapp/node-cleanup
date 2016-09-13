@@ -4,7 +4,8 @@
  * exits normally, when the user presses ctrl-C, and when an exception is
  * uncaught. The caller may specify the termination messages to use.
  *
- * See https://github.com/jtlapp/node-cleanup for more information.
+ * See https://github.com/jtlapp/node-cleanup for more information. Code
+ * largely borrowed from http://stackoverflow.com/a/21947851/650894.
  */
 
 module.exports = function nodeCleanup(cleanupHandler, messages) {
