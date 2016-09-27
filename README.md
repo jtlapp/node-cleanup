@@ -12,6 +12,8 @@ npm install node-cleanup --save
 
 nodeCleanup() installs a function that performs cleanup activities just before the node process exits. The cleanup function runs when the process exits normally, when the user presses *ctrl-C*, and when an exception is uncaught. The caller may specify the termination messages to use.
 
+You may call nodeCleanup() multiple times to install multiple cleanup handlers, but only the messages provided with the first call get used.
+
 ```js
 var nodeCleanup = require('node-cleanup');
 
@@ -37,6 +39,8 @@ nodeCleanup(function () {
 `function nodeCleanup(cleanupHandler, messages)`
 
 Install a cleanup handler that reliably runs when node exits. Both parameters are optional. Calling `nodeCleanup()` without a `cleanupHandler` still provides the benefit of ensuring that other installed exit handlers run on *ctrl-C*.
+
+Call this function multiple times to install multiple cleanup handlers. Only the messages provided with the first call are used.
 
 | Param | Description |
 | --- | --- |
