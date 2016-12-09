@@ -36,15 +36,16 @@ function install(messages) {
         messages.uncaughtException = 'Uncaught exception...';
 
     // do app-specific cleaning before exiting
-    process.on('exit', function () {
-        process.emit('cleanup');
+    process.on('exit', function (code) {
+        process.emit('cleanup', code);
     });
 
     // catch ctrl+c event and exit normally
     process.on('SIGINT', function () {
-        if (messages.ctrl_C !== '')
+        if (messages.ctrl_C !== '') {
             process.stderr.write(messages.ctrl_C + "\n");
-        process.exit(2);
+        }
+        process.exit(130);
     });
 
     //catch uncaught exceptions, trace, then exit normally
