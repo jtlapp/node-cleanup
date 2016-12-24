@@ -142,6 +142,24 @@ When a cleanup handler returns `false` to prevent the process from exiting, the 
 
 A cleanup handler should never call `process.exit()`. If a handler prevents a signal from terminating the process but later wishes to terminate the process for reason of this signal, the process should call `process.kill(process.pid, signal)`. In particular, the process should **not** call `process.exit(128 + signalNumber)`, because while this does communicate the exit code to the parent process, it does not communicate the exit signal by the means that the [node.js `child_process` expects](https://nodejs.org/api/child_process.html#child_process_event_exit).
 
+## Testing
+
+This module includes an extensive test suite. You can run it from the module directory with either the [`tap`](http://www.node-tap.org/basics/) or [`subtap`](https://github.com/jtlapp/subtap) test runner, as follows:
+
+```
+sudo npm install -g tap
+tap tests/*.js
+```
+
+or
+
+```
+sudo npm install -g subtap
+subtap
+```
+
+(As of this writing, the test suite has only been run on a Mac. Behavior may vary from OS to OS, so I'm looking for feedback from other operating systems.)
+
 ## Credit
 
 This module began by borrowing and modifying code from CanyonCasa's [answer to a stackoverflow question](http://stackoverflow.com/a/21947851/650894). I had found the code necessary for all my node projects. @Banjocat piped in with a [comment](http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits/21947851#comment68567869_21947851) about how the solution didn't properly handle SIGINT. (See [this detailed explanation](https://www.cons.org/cracauer/sigint.html) of the SIGINT problem). I have completely rewritten the module to properly deal with SIGINT and other signals (I hope!). The rewrite also provides some additional flexibility I found myself needing in my projects.

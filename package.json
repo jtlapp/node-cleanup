@@ -1,7 +1,7 @@
 {
   "name": "node-cleanup",
-  "version": "1.0.1",
-  "description": "installs a cleanup handler that always runs on exiting node",
+  "version": "2.0.0",
+  "description": "installs cleanup handlers that always run on exiting node",
   "main": "node-cleanup.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

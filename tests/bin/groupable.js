@@ -39,7 +39,7 @@ var nodeCleanup = require('../../');
 
 var config = JSON.parse(process.argv[2]);
 var grandchildFile = path.resolve(__dirname, "./grandchild.js");
-var grandchildMaxDuration = Math.round(config.maxDuration*0.65);
+var grandchildMaxDuration = Math.round(config.maxDuration*0.5);
 
 //// STATE ////////////////////////////////////////////////////////////////////
 
