@@ -5,6 +5,7 @@ Child process that installs node-cleanup for testing zero, one, or multiple (two
 
 {
     handlers; number; // 0, 1, or 2 concurrent cleanup handlers
+    messages0: object|null; // messages argument for no-cleanup call, if any
     messages1: object|null; // messages argument for 1st nodeCleanup() call
     messages2: object|null; // messages argument for 2nd nodeCleanup() call
     return1: boolean; // return value of 1st cleanup handler
@@ -47,8 +48,12 @@ function cleanup2(exitCode, signal) {
 
 //// MAIN /////////////////////////////////////////////////////////////////////
 
-if (config.handlers === 0)
-    nodeCleanup();
+if (config.handlers === 0) {
+    if (config.messages0)
+        nodeCleanup(config.messages0);
+    else
+        nodeCleanup();
+}
 else {
     nodeCleanup(cleanup1, config.messages1);
     if (config.handlers > 1)

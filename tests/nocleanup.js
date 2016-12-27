@@ -18,7 +18,7 @@ t.test("nocleanup: normal child exit", function (t) {
     });
 });
 
-t.test("nocleanup: uncaught exception", function (t) {
+t.test("nocleanup: uncaught exception - default message", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 0,
@@ -33,7 +33,25 @@ t.test("nocleanup: uncaught exception", function (t) {
     });
 });
 
-t.test("nocleanup: child SIGINT", function (t) {
+t.test("nocleanup: uncaught exception - custom message", function (t) {
+    lib.test(t, {
+        child: 'stackable',
+        handlers: 0,
+        messages0: {
+            uncaughtException: "Yikes!"
+        },
+        exception: true,
+        uninstall: false
+    }, function (childPID) {
+        // no signal
+    }, {
+        exitReason: 1,
+        stdout: "",
+        stderr: /^Yikes!/
+    });
+});
+
+t.test("nocleanup: child SIGINT - default message", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 0,
@@ -45,6 +63,24 @@ t.test("nocleanup: child SIGINT", function (t) {
         exitReason: 'SIGINT',
         stdout: "",
         stderr: lib.DEFAULT_SIGINT_OUT
+    });
+});
+
+t.test("nocleanup: child SIGINT - custom message", function (t) {
+    lib.test(t, {
+        child: 'stackable',
+        handlers: 0,
+        messages0: {
+            ctrl_C: "{^C}"
+        },
+        exception: false,
+        uninstall: false
+    }, function (childPID) {
+        process.kill(childPID, 'SIGINT');
+    }, {
+        exitReason: 'SIGINT',
+        stdout: "",
+        stderr: "{^C}\n"
     });
 });
 

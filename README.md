@@ -42,13 +42,13 @@ nodeCleanup(function (exitCode, signal) {
 If you only want to install your own messages for *Ctrl-C* and uncaught exception (either or both), you can do this:
 
 ```js
-nodeCleanup(null, {
+nodeCleanup({
     ctrl_C: "{^C}",
     uncaughtException: "Uh oh. Look what happened:"
 });
 ```
 
-To get just the default `stderr` messages, without installing a cleanup handler:
+To get the default `stderr` messages, without installing a cleanup handler:
 
 ```js
 nodeCleanup();
@@ -104,19 +104,22 @@ nodeCleanup(function (exitCode, signal) {
 
 ### `nodeCleanup()`
 
-`nodeCleanup()` has the following ([FlowType](https://flowtype.org/docs/getting-started.html#_)) signature:
+`nodeCleanup()` has the following available ([FlowType](https://flowtype.org/docs/getting-started.html#_)) signatures:
 
 ```js
-function nodeCleanup(cleanupHandler?: Function, messages?: object): void
+function nodeCleanup(cleanupHandler: Function): void
+function nodeCleanup(cleanupHandler: Function, stderrMessages: object): void
+function nodeCleanup(stderrMessages: object): void
+function nodeCleanup(): void
 ```
 
-`nodeCleanup()` installs a cleanup handler. It may also assign messages to write to `stderr` on SIGINT or an uncaught exception. Both parameters are optional. If not `cleanupHandler` is provided, the `stderr` messages are still written. If no `messages` are provided, default `stderr` messages are written. Calling `nodeCleanup()` with no parameters just installs these default messages.
+The 1st form installs a cleanup handler. The 2nd form also assigns messages to write to `stderr` on SIGINT or an uncaught exception. The 3rd and 4th forms only assign messages to write to `stderr`, without installing a cleanup handler. The 4th form assigns default `stderr` messages.
 
-`cleanupHandler` is a cleanup handler callback and is described in its own section below. When null or undefined, termination events all result in the process terminating, including signals.
+`cleanupHandler` is a cleanup handler callback and is described in its own section below. When no cleanup handlers are installed, termination events all result in the process terminating, including signal events.
 
-`messages` is an object mapping any of the keys `ctrl_C` and `uncaughtException` to message strings that output to `stderr`. Default messages are provided for omitted messages. Set a message to the empty string `''` inhibit the message.
+`stderrMessages` is an object mapping any of the keys `ctrl_C` and `uncaughtException` to message strings that output to `stderr`. Set a message to the empty string `''` inhibit a previously-assigned message.
 
-`nodeCleanup()` may be called multiple times to install multiple cleanup handlers. Each of these handlers runs for each signal or termination condition. The first call to `nodeCleanup()` establishes the `stderr` messages; messages passed to subsequent calls are ignored.
+`nodeCleanup()` may be called multiple times to install multiple cleanup handlers or override previous messages. Each handler gets called on each signal or termination condition. The most recently assigned messages apply.
 
 ### `nodeCleanup.uninstall()`
 
@@ -162,12 +165,11 @@ subtap
 
 ## Incompatibilities with v1.0.x
 
-TBD
+`node-cleanup` v2+ is not fully compatible with v1.x. You may need to change your usage to upgrade. These are the potential incompatibilities:
 
-- default messages
-- catches SIGHUP, SIGQUIT, and SIGTERM
+- The cleanup handlers now also run on SIGHUP, SIGQUIT, and SIGTERM, which were not getting cleanup processing before.
+- `stderr` messages are handled quite differently. Previously, there were defaults that you had to override, and only your first message assignments applied. Now, the defaults **only** install with the parameterless call `nodeCleanup()`. Otherwise there are no messages unless you provide them. Moreover, the most recent message assignments are the ones that get used.
 
 ## Credit
 
 This module began by borrowing and modifying code from CanyonCasa's [answer to a stackoverflow question](http://stackoverflow.com/a/21947851/650894). I had found the code necessary for all my node projects. @Banjocat piped in with a [comment](http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits/21947851#comment68567869_21947851) about how the solution didn't properly handle SIGINT. (See [this detailed explanation](https://www.cons.org/cracauer/sigint.html) of the SIGINT problem). I have completely rewritten the module to properly deal with SIGINT and other signals (I hope!). The rewrite also provides some additional flexibility that @zixia and I found ourselves needing for our respective projects.
-

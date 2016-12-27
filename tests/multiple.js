@@ -22,34 +22,15 @@ t.test("multiple handlers: normal exit", function (t) {
     });
 });
 
-t.test("multiple handlers: uncaught exception - default message", function (t) {
-    lib.test(t, {
-        child: 'stackable',
-        handlers: 2,
-        messages1: null,
-        messages2: null,
-        return1: true,
-        return2: true,
-        exception: true,
-        uninstall: false
-    }, function (childPID) {
-        // no signal
-    }, {
-        exitReason: 1,
-        stdout: "cleanup1 cleanup2",
-        stderr: lib.DEFAULT_EXCEPTION_OUT
-    });
-});
-
-t.test("multiple handlers: uncaught exception - custom message", function (t) {
+t.test("multiple handlers: uncaught exception - custom messages", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 2,
         messages1: {
-            uncaughtException: "Look! A surprise!"
+            uncaughtException: "Not the surprise you're looking for."
         },
         messages2: {
-            uncaughtException: "Not the surprise you're looking for."
+            uncaughtException: "Look! A surprise!"
         },
         return1: true,
         return2: true,
@@ -64,12 +45,160 @@ t.test("multiple handlers: uncaught exception - custom message", function (t) {
     });
 });
 
-t.test("multiple handlers: child SIGINT - both heeded", function (t) {
+t.test("multiple handlers: uncaught exception - removed message",
+    function (t) {
+        lib.test(t, {
+            child: 'stackable',
+            handlers: 2,
+            messages1: {
+                uncaughtException: "Not the surprise you're looking for."
+            },
+            messages2: {
+                uncaughtException: ""
+            },
+            return1: true,
+            return2: true,
+            exception: true,
+            uninstall: false
+        }, function (childPID) {
+            // no signal
+        }, {
+            exitReason: 1,
+            stdout: "cleanup1 cleanup2",
+            stderr: /tests[\/\\]bin[\/\\]stackable.js/
+        });
+    }
+);
+
+t.test("multiple handlers: uncaught exception - added message",
+    function (t) {
+        lib.test(t, {
+            child: 'stackable',
+            handlers: 2,
+            messages1: {
+                ctrl_C: "{^C}}"
+            },
+            messages2: {
+                uncaughtException: "Oops!"
+            },
+            return1: true,
+            return2: true,
+            exception: true,
+            uninstall: false
+        }, function (childPID) {
+            // no signal
+        }, {
+            exitReason: 1,
+            stdout: "cleanup1 cleanup2",
+            stderr: /^Oops!/
+        });
+    }
+);
+
+t.test("multiple handlers: uncaught exception - no message", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 2,
         messages1: null,
         messages2: null,
+        return1: true,
+        return2: true,
+        exception: true,
+        uninstall: false
+    }, function (childPID) {
+        // no signal
+    }, {
+        exitReason: 1,
+        stdout: "cleanup1 cleanup2",
+        stderr: /tests[\/\\]bin[\/\\]stackable.js/
+    });
+});
+
+t.test("multiple handlers: child SIGINT - both heeded, custom messages",
+    function (t) {
+        lib.test(t, {
+            child: 'stackable',
+            handlers: 2,
+            messages1: {
+                ctrl_C: "{^C1}"
+            },
+            messages2: {
+                ctrl_C: "{^C2}"
+            },
+            return1: true,
+            return2: true,
+            exception: false,
+            uninstall: false
+        }, function (childPID) {
+            process.kill(childPID, 'SIGINT');
+        }, {
+            exitReason: 'SIGINT',
+            stdout: "cleanup1 cleanup2",
+            stderr: "{^C2}\n"
+        });
+    }
+);
+
+t.test("multiple handlers: child SIGINT - first heeded, custom messages",
+    function (t) {
+        lib.test(t, {
+            child: 'stackable',
+            handlers: 2,
+            messages1: {
+                ctrl_C: "{^C1}"
+            },
+            messages2: {
+                ctrl_C: "{^C2}"
+            },
+            return1: true,
+            return2: false,
+            exception: false,
+            uninstall: false
+        }, function (childPID) {
+            process.kill(childPID, 'SIGINT');
+        }, {
+            exitReason: 0,
+            stdout: "cleanup1 cleanup2",
+            stderr: ""
+        });
+    }
+);
+
+t.test("multiple handlers: child SIGINT - second heeded, custom messages",
+    function (t) {
+        lib.test(t, {
+            child: 'stackable',
+            handlers: 2,
+            messages1: {
+                ctrl_C: "{^C1}"
+            },
+            messages2: {
+                ctrl_C: "{^C2}"
+            },
+            return1: false,
+            return2: true,
+            exception: false,
+            uninstall: false
+        }, function (childPID) {
+            process.kill(childPID, 'SIGINT');
+        }, {
+            exitReason: 0,
+            stdout: "cleanup1 cleanup2",
+            stderr: ""
+        });
+    }
+);
+
+t.test("multiple handlers: child SIGINT - removed message", function (t) {
+    lib.test(t, {
+        child: 'stackable',
+        handlers: 2,
+        messages1: {
+            ctrl_C: "{^C1}"
+        },
+        messages2: {
+            ctrl_C: ""
+        },
         return1: true,
         return2: true,
         exception: false,
@@ -79,57 +208,19 @@ t.test("multiple handlers: child SIGINT - both heeded", function (t) {
     }, {
         exitReason: 'SIGINT',
         stdout: "cleanup1 cleanup2",
-        stderr: lib.DEFAULT_SIGINT_OUT
-    });
-});
-
-t.test("multiple handlers: child SIGINT - first heeded", function (t) {
-    lib.test(t, {
-        child: 'stackable',
-        handlers: 2,
-        messages1: null,
-        messages2: null,
-        return1: true,
-        return2: false,
-        exception: false,
-        uninstall: false
-    }, function (childPID) {
-        process.kill(childPID, 'SIGINT');
-    }, {
-        exitReason: 0,
-        stdout: "cleanup1 cleanup2",
         stderr: ""
     });
 });
 
-t.test("multiple handlers: child SIGINT - second heeded", function (t) {
-    lib.test(t, {
-        child: 'stackable',
-        handlers: 2,
-        messages1: null,
-        messages2: null,
-        return1: false,
-        return2: true,
-        exception: false,
-        uninstall: false
-    }, function (childPID) {
-        process.kill(childPID, 'SIGINT');
-    }, {
-        exitReason: 0,
-        stdout: "cleanup1 cleanup2",
-        stderr: ""
-    });
-});
-
-t.test("multiple handlers: child SIGINT - custom message", function (t) {
+t.test("multiple handlers: child SIGINT - added message", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 2,
         messages1: {
-            ctrl_C: "{^C1}"
+            uncaughtException: "Oops!"
         },
         messages2: {
-            ctrl_C: "{^C2}"
+            ctrl_C: "{^C1}"
         },
         return1: true,
         return2: true,
@@ -224,8 +315,12 @@ t.test("multiple handlers/uninstall: uncaught exception", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 2,
-        messages1: null,
-        messages2: null,
+        messages1: {
+            uncaughtException: "Shouldn't show."
+        },
+        messages2: {
+            uncaughtException: "Also shouldn't show."
+        },
         return1: true,
         return2: true,
         exception: true,
@@ -243,8 +338,12 @@ t.test("multiple handlers/uninstall: child SIGINT", function (t) {
     lib.test(t, {
         child: 'stackable',
         handlers: 2,
-        messages1: null,
-        messages2: null,
+        messages1: {
+            ctrl_C: "{^C1}"
+        },
+        messages2: {
+            ctrl_C: "{^C2}"
+        },
         return1: true,
         return2: true,
         exception: false,

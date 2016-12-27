@@ -57,24 +57,6 @@ t.test("single: normal grandchild exit", function (t) {
     });
 });
 
-t.test("single: uncaught exception - default message", function (t) {
-    lib.test(t, {
-        child: 'groupable',
-        grandchild: false,
-        grandchildHeedsSIGINT: false,
-        messages: null,
-        exception: true,
-        skipTermination: false,
-        exitReturn: 'true'
-    }, function (childPID) {
-        // no signal
-    }, {
-        exitReason: 1,
-        stdout: "cleanup",
-        stderr: lib.DEFAULT_EXCEPTION_OUT
-    });
-});
-
 t.test("single: uncaught exception - custom message", function (t) {
     lib.test(t, {
         child: 'groupable',
@@ -115,45 +97,7 @@ t.test("single: uncaught exception - no message", function (t) {
     });
 });
 
-t.test("single: child SIGINT - true return, default message", function (t) {
-    lib.test(t, {
-        child: 'groupable',
-        grandchild: false,
-        grandchildHeedsSIGINT: false,
-        messages: null,
-        exception: false,
-        skipTermination: false,
-        exitReturn: 'true'
-    }, function (childPID) {
-        process.kill(childPID, 'SIGINT');
-    }, {
-        exitReason: 'SIGINT',
-        stdout: "cleanup",
-        stderr: lib.DEFAULT_SIGINT_OUT
-    });
-});
-
-t.test("single: child SIGINT - undefined return, default message",
-    function (t) {
-        lib.test(t, {
-            child: 'groupable',
-            grandchild: false,
-            grandchildHeedsSIGINT: false,
-            messages: null,
-            exception: false,
-            skipTermination: false,
-            exitReturn: 'undefined'
-        }, function (childPID) {
-            process.kill(childPID, 'SIGINT');
-        }, {
-            exitReason: 'SIGINT',
-            stdout: "cleanup",
-            stderr: lib.DEFAULT_SIGINT_OUT
-        });
-    }
-);
-
-t.test("single: child SIGINT - custom message", function (t) {
+t.test("single: child SIGINT - true return, custom message", function (t) {
     lib.test(t, {
         child: 'groupable',
         grandchild: false,
@@ -173,14 +117,34 @@ t.test("single: child SIGINT - custom message", function (t) {
     });
 });
 
+t.test("single: child SIGINT - undefined return, custom message",
+    function (t) {
+        lib.test(t, {
+            child: 'groupable',
+            grandchild: false,
+            grandchildHeedsSIGINT: false,
+            messages: {
+                ctrl_C: "{^C}"
+            },
+            exception: false,
+            skipTermination: false,
+            exitReturn: 'undefined'
+        }, function (childPID) {
+            process.kill(childPID, 'SIGINT');
+        }, {
+            exitReason: 'SIGINT',
+            stdout: "cleanup",
+            stderr: "{^C}\n"
+        });
+    }
+);
+
 t.test("single: child SIGINT - no message", function (t) {
     lib.test(t, {
         child: 'groupable',
         grandchild: false,
         grandchildHeedsSIGINT: false,
-        messages: {
-            ctrl_C: ""
-        },
+        messages: null,
         exception: false,
         skipTermination: false,
         exitReturn: 'true'
@@ -198,7 +162,9 @@ t.test("single: group SIGINT - grandchild ignores", function (t) {
         child: 'groupable',
         grandchild: true,
         grandchildHeedsSIGINT: false,
-        messages: null,
+        messages: {
+            ctrl_C: "{^C}"
+        },
         exception: false,
         skipTermination: false,
         exitReturn: 'true'
@@ -216,7 +182,9 @@ t.test("single: group SIGINT - grandchild heeds", function (t) {
         child: 'groupable',
         grandchild: true,
         grandchildHeedsSIGINT: true,
-        messages: null,
+        messages: {
+            ctrl_C: "{^C}"
+        },
         exception: false,
         skipTermination: false,
         exitReturn: 'true'
@@ -225,7 +193,7 @@ t.test("single: group SIGINT - grandchild heeds", function (t) {
     }, {
         exitReason: 'SIGINT',
         stdout: "skipped_cleanup grandchild=SIGINT cleanup",
-        stderr: lib.DEFAULT_SIGINT_OUT
+        stderr: "{^C}\n"
     });
 });
 

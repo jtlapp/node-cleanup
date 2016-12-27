@@ -12,9 +12,17 @@ The process terminates after cleanup, except possibly on signals. If any cleanup
 Install a cleanup handler as follows:
 
     var nodeCleanup = require('node-cleanup');
-    nodeCleanup(cleanupHandler, terminationMessages);
+    nodeCleanup(cleanupHandler, stderrMessages);
+    
+Or to only install stderr messages:
 
-nodeCleanup() may be called multiple times to install multiple cleanup handlers. However, only the termination messages established by the first call get used.
+    nodeCleanup(stderrMessages);
+
+Or to install the default stderr messages:
+
+    nodeCleanup();
+
+nodeCleanup() may be called multiple times to install multiple cleanup handlers. However, only the most recently installed stderr messages get used. The messages available are ctrl_C and uncaughtException.
 
 The following uninstalls all cleanup handlers and may be called multiple times in succession:
 
@@ -25,13 +33,15 @@ This module has its origin in code by  @CanyonCasa at  http://stackoverflow.com/
  
 //// CONSTANTS ////////////////////////////////////////////////////////////////
 
-var DEFAULT_SIGINT_MSG =  '[ctrl-C]';
-var DEFAULT_EXCEPTION_MSG = 'Uncaught exception...';
+var DEFAULT_MESSAGES = {
+    ctrl_C: '[ctrl-C]',
+    uncaughtException: 'Uncaught exception...'
+};
  
 //// CONFIGURATION ////////////////////////////////////////////////////////////
 
 var cleanupHandlers = null; // array of cleanup handlers to call
-var exceptionMessage = null; // stderr message for uncaught exceptions
+var messages = null; // messages to write to stderr
 
 var sigintHandler; // POSIX signal handlers
 var sighupHandler;
@@ -40,7 +50,7 @@ var sigtermHandler;
 
 //// HANDLERS /////////////////////////////////////////////////////////////////
 
-function signalHandler(signal, message)
+function signalHandler(signal)
 {
     var exit = true;
     cleanupHandlers.forEach(function (cleanup) {
@@ -48,8 +58,8 @@ function signalHandler(signal, message)
             exit = false;
     });
     if (exit) {
-        if (message !== '')
-            process.stderr.write(message + "\n");
+        if (signal === 'SIGINT' && messages && messages.ctrl_C !== '')
+            process.stderr.write(messages.ctrl_C + "\n");
         uninstall(); // don't cleanup again
         // necessary to communicate the signal to the parent process
         process.kill(process.pid, signal);
@@ -58,8 +68,8 @@ function signalHandler(signal, message)
 
 function exceptionHandler(e)
 {
-    if (exceptionMessage !== '')
-        process.stderr.write(exceptionMessage + "\n");
+    if (messages && messages.uncaughtException !== '')
+        process.stderr.write(messages.uncaughtException + "\n");
     process.stderr.write(e.stack + "\n");
     process.exit(1); // will call exitHandler() for cleanup
 }
@@ -73,22 +83,33 @@ function exitHandler(exitCode, signal)
 
 //// MAIN /////////////////////////////////////////////////////////////////////
 
-function install(cleanupHandler, messages)
+function install(cleanupHandler, stderrMessages)
 {
+    if (cleanupHandler) {
+        if (typeof cleanupHandler === 'object') {
+            stderrMessages = cleanupHandler;
+            cleanupHandler = null;
+        }
+    }
+    else if (!stderrMessages)
+        stderrMessages = DEFAULT_MESSAGES;
+    
+    if (stderrMessages) {
+        if (messages === null)
+            messages = { ctrl_C: '', uncaughtException: '' };
+        if (typeof stderrMessages.ctrl_C === 'string')
+            messages.ctrl_C = stderrMessages.ctrl_C;
+        if (typeof stderrMessages.uncaughtException === 'string')
+            messages.uncaughtException = stderrMessages.uncaughtException;
+    }
+    
     if (cleanupHandlers === null) {
         cleanupHandlers = []; // establish before installing handlers
         
-        messages = messages || {};
-        if (typeof messages.ctrl_C !== 'string')
-            messages.ctrl_C = DEFAULT_SIGINT_MSG;
-        if (typeof messages.uncaughtException !== 'string')
-            messages.uncaughtException = DEFAULT_EXCEPTION_MSG;
-        exceptionMessage = messages.uncaughtException;
-    
-        sigintHandler = signalHandler.bind(this, 'SIGINT', messages.ctrl_C);
-        sighupHandler = signalHandler.bind(this, 'SIGHUP', '');
-        sigquitHandler = signalHandler.bind(this, 'SIGQUIT', '');
-        sigtermHandler = signalHandler.bind(this, 'SIGTERM', '');
+        sigintHandler = signalHandler.bind(this, 'SIGINT');
+        sighupHandler = signalHandler.bind(this, 'SIGHUP');
+        sigquitHandler = signalHandler.bind(this, 'SIGQUIT');
+        sigtermHandler = signalHandler.bind(this, 'SIGTERM');
         
         process.on('SIGINT', sigintHandler);
         process.on('SIGHUP', sighupHandler);
