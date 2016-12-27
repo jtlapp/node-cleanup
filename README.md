@@ -160,7 +160,14 @@ subtap
 
 (As of this writing, the test suite has only been run on a Mac. Behavior may vary from OS to OS, so I'm looking for feedback from other operating systems.)
 
+## Incompatibilities with v1.0.x
+
+TBD
+
+- default messages
+- catches SIGHUP, SIGQUIT, and SIGTERM
+
 ## Credit
 
-This module began by borrowing and modifying code from CanyonCasa's [answer to a stackoverflow question](http://stackoverflow.com/a/21947851/650894). I had found the code necessary for all my node projects. @Banjocat piped in with a [comment](http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits/21947851#comment68567869_21947851) about how the solution didn't properly handle SIGINT. (See [this detailed explanation](https://www.cons.org/cracauer/sigint.html) of the SIGINT problem). I have completely rewritten the module to properly deal with SIGINT and other signals (I hope!). The rewrite also provides some additional flexibility I found myself needing in my projects.
+This module began by borrowing and modifying code from CanyonCasa's [answer to a stackoverflow question](http://stackoverflow.com/a/21947851/650894). I had found the code necessary for all my node projects. @Banjocat piped in with a [comment](http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits/21947851#comment68567869_21947851) about how the solution didn't properly handle SIGINT. (See [this detailed explanation](https://www.cons.org/cracauer/sigint.html) of the SIGINT problem). I have completely rewritten the module to properly deal with SIGINT and other signals (I hope!). The rewrite also provides some additional flexibility that @zixia and I found ourselves needing for our respective projects.
 
