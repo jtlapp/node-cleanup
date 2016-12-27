@@ -1,7 +1,7 @@
 {
   "name": "node-cleanup",
-  "version": "2.1.0",
-  "description": "installs cleanup handlers that always run on exiting node",
+  "version": "2.1.1",
+  "description": "installs custom cleanup handlers that run on exiting node",
   "main": "node-cleanup.js",
   "scripts": {
     "test": "tap tests/*.js"

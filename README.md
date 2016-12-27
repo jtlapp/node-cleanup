@@ -106,7 +106,7 @@ nodeCleanup(function (exitCode, signal) {
 
 `nodeCleanup()` has the following available ([FlowType](https://flowtype.org/docs/getting-started.html#_)) signatures:
 
-```js
+```
 function nodeCleanup(cleanupHandler: Function): void
 function nodeCleanup(cleanupHandler: Function, stderrMessages: object): void
 function nodeCleanup(stderrMessages: object): void
@@ -131,13 +131,13 @@ This function is primarily useful when a signal occurs and the cleanup handler p
 
 Each cleanup handler has the following ([FlowType](https://flowtype.org/docs/getting-started.html#_)) signature:
 
-```js
+```
 function cleanupHandler(exitCode: number|null, signal: string|null): boolean?
 ```
 
 If the process is terminating for a reason other than a POSIX signal, `exitCode` is the exit code, and `signal` is null. Otherwise, if the process received a signal, `signal` is the signal's string name, and `exitCode` is null. These are the arguments passed to a [child process `exit` event](https://nodejs.org/api/child_process.html#child_process_event_exit) handler, mirrored here in `node-cleanup` for consistency.
 
-Node.js defines [these standard exit codes](https://nodejs.org/api/process.html#process_exit_codes), but it does not appear to use code values >128 for signals. According to the node.js docs, [these are the possible signals](http://man7.org/linux/man-pages/man7/signal.7.html).
+Node.js defines [these standard exit codes](https://nodejs.org/api/process.html#process_exit_codes), but it does not appear to use code values >128 for signals. According to the node.js docs, [these are the possible signals](http://man7.org/linux/man-pages/man7/signal.7.html), but the cleanup handlers only run on SIGINT (e.g. *Ctrl-C*), SIGHUP, SIGQUIT, or SIGTERM. (It is not possible to intercept SIGKILL.)
 
 The return value of a cleanup handler is only significant for signals. If any cleanup handler returns a boolean `false`, the process does not exit. If they all return `true` (or for backwards compatibility, no return value), the process exits, reporting the signal to the parent process as the reason for the exit. The process always exits after calling the cleanup handlers for non-signals.
 
@@ -170,6 +170,6 @@ subtap
 - The cleanup handlers now also run on SIGHUP, SIGQUIT, and SIGTERM, which were not getting cleanup processing before.
 - `stderr` messages are handled quite differently. Previously, there were defaults that you had to override, and only your first message assignments applied. Now, the defaults **only** install with the parameterless call `nodeCleanup()`. Otherwise there are no messages unless you provide them. Moreover, the most recent message assignments are the ones that get used.
 
-## Credit
+## Acknowledgements
 
 This module began by borrowing and modifying code from CanyonCasa's [answer to a stackoverflow question](http://stackoverflow.com/a/21947851/650894). I had found the code necessary for all my node projects. @Banjocat piped in with a [comment](http://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits/21947851#comment68567869_21947851) about how the solution didn't properly handle SIGINT. (See [this detailed explanation](https://www.cons.org/cracauer/sigint.html) of the SIGINT problem). I have completely rewritten the module to properly deal with SIGINT and other signals (I hope!). The rewrite also provides some additional flexibility that @zixia and I found ourselves needing for our respective projects.
