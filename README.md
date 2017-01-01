@@ -150,14 +150,16 @@ A cleanup handler should never call `process.exit()`. If a handler prevents a si
 This module includes an extensive test suite. You can run it from the module directory with either the [`tap`](http://www.node-tap.org/basics/) or [`subtap`](https://github.com/jtlapp/subtap) test runner, as follows:
 
 ```
-sudo npm install -g tap
+npm install -g tap
+npm install
 tap tests/*.js
 ```
 
 or
 
 ```
-sudo npm install -g subtap
+npm install -g subtap
+npm install
 subtap
 ```
 
