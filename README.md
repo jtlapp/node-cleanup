@@ -178,7 +178,7 @@ This module began by borrowing and modifying code from CanyonCasa's [answer to a
 
 ## License
 
-*This license applies to v2 and later. v1 derived from [this stackoverflow answewr](http://stackoverflow.com/a/21947851/650894).*
+*This license applies to v2 and later. v1 derived from [this stackoverflow answer](http://stackoverflow.com/a/21947851/650894).*
 
 MIT License
 
