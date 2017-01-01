@@ -33,6 +33,7 @@
     "url": "https://github.com/jtlapp/node-cleanup/issues"
   },
   "homepage": "https://github.com/jtlapp/node-cleanup#readme",
+  "license": "MIT",
   "devDependencies": {
     "memory-streams": "^0.1.0",
     "tap": "^8.0.1"
